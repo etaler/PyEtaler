@@ -1,0 +1,9 @@
+<lcgdict>
+   <!-- Etaler stuff -->
+   <struct pattern="et::*" />
+   <function pattern="et::*" />
+   <enum pattern="et::*" />
+
+   <!-- cling stuff to support printing -->
+   <enum pattern="cling::printValue*" />
+</lcgdict>
