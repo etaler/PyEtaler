@@ -4,6 +4,7 @@ This is the offical Python binding for Etaler. (WIP)
 
 ## Building from source
 
+**Note:** You must have Etaler installed globally before building the binding.
 ```python
 pip install cppyy # must installed globally
 python3 genbinding.py
