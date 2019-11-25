@@ -12,11 +12,13 @@ except:
 parser = argparse.ArgumentParser(description='Etaler Python binding generator')
 parser.add_argument('--home', dest='home', default=None, help='Where Etaler\'s header folder is located')
 parser.add_argument('--cxx', dest='cxx', default='c++',  help='the c++ compiler you use')
+parser.add_argument('--opencl', dest='ocl', action='store_true', help='Wrapping the OpenCLBackned')
 
 args = parser.parse_args()
 
 user_home = args.home
 cxx = args.cxx
+enable_ocl = args.ocl
 rfldct = 'etaler'
 
 etaler_homes = ['/usr/local/include', '/usr/include'] if user_home is None else [user_home]
@@ -34,11 +36,12 @@ if etaler_home == '': # not found
 
 # Filter unwanted headers
 etaler_headers = [x for x in etaler_headers if
-        'OpenCL' not in x and         # FIXME: Backends causes loading problem
-        'CPU' not in x and            # Same issue, causes loading problem
         'Interop' not in x and        # Disable interop. TODO: add option to enable
         'ProgressDisplay' not in x    # uses std::chrono, but not supported by cppyy
     ]
+
+if enable_ocl is False:
+    etaler_headers = [x for x in etaler_headers if 'OpenCL' not in x]
 
 
 print('---------generator information----------')
@@ -46,6 +49,7 @@ print('Etaler home   : %s'%etaler_home)
 print('Interop       : Not supported now')
 print('Backends      : Not supported now')
 print('C++ compiler  : %s'%cxx)
+print('OpenCL Backend: {}'.format(enable_ocl))
 print('Generating via cppyy...')
 
 # First we generate the redlection data
