@@ -10,7 +10,9 @@ if sys.version_info < (3, 0):
     raise ValueError("Do not run the script under Python2")
 
 src_dir = os.path.dirname(os.path.abspath(__file__))
-print(src_dir)
+long_description = ''
+with open(os.path.join(src_dir, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 class build_binding(build):
     def run(self):
         protoc_command = ["python3", os.path.join(src_dir, "genbinding.py")]
@@ -26,6 +28,8 @@ setup(
   version = '0.0.1',
   license='bsd-3-clause',
   description = 'A high performance implementation of Numenta\'s HTM algorithms',
+  long_description=long_description,
+  long_description_content_type="text/markdown",
   author = 'Martin Chang',
   author_email = 'marty188586@gmail.com',
   url = 'https://github.com/etaler/PyEtaler/tree/master',
