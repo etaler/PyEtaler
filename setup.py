@@ -21,7 +21,7 @@ class build_binding(build):
         build.run(self)
 
 setup(
-  name = 'etaler',
+  name = 'pyetaler',
   packages = ['etaler'],
   version = '0.0.1',
   license='bsd-3-clause',
