@@ -32,13 +32,14 @@ setup(
   keywords = ['HTM', 'Hierarchical Temporal Memory', 'Numenta', "AI", "SDR"
       "sparse distributed representation", "bioinspired"],
   install_requires=[
-          'cppyy'
+          'cppyy',
+          'pathlib'
       ],
   classifiers=[
     'Development Status :: 3 - Alpha',      # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
     'Intended Audience :: Developers',      # Define that your audience are developers
     'Topic :: Software Development :: Build Tools',
-    'License :: OSI Approved :: BSD 3-clause "New" or "Revised" license',
+    'License :: OSI Approved :: BSD License',
     'Programming Language :: Python :: 3',      #Specify which pyhton versions that you want to support
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
