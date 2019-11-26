@@ -2,6 +2,9 @@
 
 This is the offical Python binding for Etaler. PyEtaler generates Python binging using [cppyy](https://cppyy.readthedocs.io/en/latest/) and adds additional feature on top of the automatically generated bindings.
 
+
+**Note:** As of now, installing cppyy (thus PyEtaler) will cause [ROOT](https://root.cern.ch) to fail to load due to dependency clash.
+
 ## Building from source
 
 **Note:** You must have Etaler and cppyy installed globally before building the binding.
