@@ -4,3 +4,6 @@ build/
 *.dll
 *.cpp
 *.pcm
+dist/
+MANIFEST
+pyetaler.egg-info/
