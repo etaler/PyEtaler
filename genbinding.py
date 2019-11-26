@@ -13,6 +13,7 @@ parser = argparse.ArgumentParser(description='Etaler Python binding generator')
 parser.add_argument('--home', dest='home', default=None, help='Where Etaler\'s header folder is located')
 parser.add_argument('--cxx', dest='cxx', default='c++',  help='the c++ compiler you use')
 parser.add_argument('--opencl', dest='ocl', action='store_true', help='Wrapping the OpenCLBackned')
+parser.add_argument('--out-dir', dest='out_dir', default='.', help='output directory')
 
 args = parser.parse_args()
 

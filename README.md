@@ -8,6 +8,8 @@ This is the offical Python binding for Etaler. PyEtaler generates Python binging
 ## Building from source
 
 **Note:** You must have Etaler and cppyy installed globally before building the binding.
+**Note:** Since the binding is generated to load the actual Etaler installation. You'll need to re-compile the binding everytime Etaler is updated.
+
 ```python
 pip install cppyy # must installed globally
 python3 genbinding.py

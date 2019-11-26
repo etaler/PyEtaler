@@ -1,5 +1,9 @@
 import cppyy
-cppyy.load_reflection_info("etaler_rflx.so")
+import os
+
+src_dir = os.path.dirname(os.path.realpath(__file__))
+cppyy.load_reflection_info(os.path.join(src_dir, "etaler_rflx.so"))
+
 
 from cppyy.gbl import et
 
