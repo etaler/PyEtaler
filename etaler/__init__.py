@@ -14,7 +14,7 @@ et.Tensor.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
 
 # Override the __setitem__ and __getitem__ function of et.Tensor
 # To allow Python style subscription
-def get_tensor_view(self, slices):
+def get_tensor_view(self, slices) -> et.Tensor:
 
     tup = None
     if type(slices) is int:
