@@ -48,3 +48,15 @@ After installation, you can use Etaler from python. The API is exactly like it i
 >>> sp.compute(x)
 { 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}
 ```
+
+### Hacking PyEtaler
+
+In case that you need to use C++ STL - maybe because the wrapper is doing something stupid. You can access the STL using `etaler.std`.
+
+For example
+
+```Python
+>>> from etaler import std
+>>> std.vector[int](10)
+<cppyy.gbl.std.vector<int> object at 0x1ef112c0>
+```
