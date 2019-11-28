@@ -11,7 +11,7 @@ from cppyy.gbl import std
 # cppyy does not print reflections like ROOT does
 # But Python doesn not allow overwriting an enum's __repr__
 # So we supply one to cppyy
-#FIXME: cppyy cannot fund et::DType in C++ for some reason
+#FIXME: cppyy cannot find et::DType in C++ for some reason
 #cppyy.cppdef("""
 #namespace cling {
 #std::string printValue(const et::DType* dtype) {
@@ -29,7 +29,7 @@ from cppyy.gbl import std
 #}
 #""")
 
-# add helper function
+# helper functions
 
 def type_from_dtype(dtype):
     if dtype == et.DType.Bool:
@@ -89,7 +89,7 @@ def get_subshape(self: et.Shape, idx):
     elif type(idx) is not slice and type(idx) is not range:
         raise TypeError("Cannot index with type {}".format(type(idx)))
    
-    # Unfortunatelly iterators doesn't work :(
+    # Unfortunatelly iterators doesn't work like in C++ :(
     start = idx.start if idx.start is not None else 0
     stop = idx.stop if idx.stop is not None else self.size()
     step = idx.step if idx.step is not None else 1
@@ -122,9 +122,7 @@ et.Shape.__setitem__ = set_subshape
 def get_tensor_view(self: et.Tensor, slices) -> et.Tensor:
 
     tup = None
-    if type(slices) is int:
-        tup = (slices,)
-    elif type(slices) is range or type(slices) is slice:
+    if type(slices) is int or type(slices) is range or type(slices) is slice:
         tup = (slices,)
     else:
         tup = slices
