@@ -174,3 +174,23 @@ et.Tensor.__bool__ = tensor_trueness
 
 # Implement our __len__ to match numpy's behaivour
 et.Tensor.__len__ = lambda self: self.shape()[0] if self.has_value else 0
+
+# interpo with numpy conversion
+try:
+    import numpy as np
+    def tensor_to_np(self: et.Tensor) -> np.array:
+        vec = self.toHost()
+        t = type_from_dtype(self.dtype())
+        lst = [t(x) for x in vec]
+        return np.array(lst).reshape(tuple(self.shape()))
+    et.Tensor.numpy = tensor_to_np
+
+    def tensor_tolist(self: et.Tensor) -> np.array:
+        return tensor_to_np(self).tolist()
+    et.Tensor.tolist = tensor_tolist
+
+    # TODO: add function to create et.Tensor from numpy
+except ImportError:
+    pass
+
+
