@@ -112,7 +112,7 @@ def set_subshape(self: et.Shape, idx, value):
         raise ValueError('Cannot assign {} values into {} variables'.format(len(values), len(rng)))
 
     for i, j in enumerate(rng):
-        self.data()[j] = values[i]
+        self.data()[j] = values[i] if values[i] is not None else -1 # -1 is None in Etaler
 
 et.Shape.__getitem__ = get_subshape
 et.Shape.__setitem__ = set_subshape
