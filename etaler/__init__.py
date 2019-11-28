@@ -8,8 +8,6 @@ cppyy.load_reflection_info(os.path.join(src_dir, "etaler_rflx.so"))
 from cppyy.gbl import et
 from cppyy.gbl import std
 
-# add helper function
-
 # cppyy does not print reflections like ROOT does
 # But Python doesn not allow overwriting an enum's __repr__
 # So we supply one to cppyy
@@ -31,6 +29,8 @@ from cppyy.gbl import std
 #}
 #""")
 
+# add helper function
+
 def type_from_dtype(dtype):
     if dtype == et.DType.Bool:
         return bool
@@ -45,10 +45,77 @@ def type_from_dtype(dtype):
 
 et.dtypeToType = type_from_dtype
 
+def in_bound(idx: int, size: int):
+    if idx is None:
+        return True
+    elif idx >= 0:
+        return idx < size
+    else:
+        return -idx >= size
+
+def is_iteratable(obj):
+    try:
+        it = iter(obj)
+        return True
+    except TypeError:
+        return False
+
 # Override the default __repr__ with Etaler's function
 et.Shape.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
 et.Tensor.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
 et.half.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
+
+def is_index_good(self, idx):
+    if type(idx) is int:
+        if in_bound(idx, self.size()) is False:
+            raise IndexError("index {} it our of range".format(idx))
+    elif in_bound(idx.stop, self.size()) is False:
+        raise IndexError("Stop index {} is out of range".format(idx.stop))
+    elif in_bound(idx.start, self.size()) is False:
+        raise IndexError("Start index {} is out of range".format(idx.stop))
+    elif idx.step == 0:
+        raise IndexError("Cannot have step size of 0")
+et.Shape.is_index_good = is_index_good
+
+# Override et.Shape's __getitem__ and __setitem__
+def get_subshape(self: et.Shape, idx):
+    self.is_index_good(idx)
+
+    if type(idx) is int:
+        if idx < 0:
+            return self.data()[len(self) + idx]
+        else:
+            return self.data()[idx]
+    elif type(idx) is not slice and type(idx) is not range:
+        raise TypeError("Cannot index with type {}".format(type(idx)))
+   
+    # Unfortunatelly iterators doesn't work :(
+    start = idx.start if idx.start is not None else 0
+    stop = idx.stop if idx.stop is not None else self.size()
+    step = idx.step if idx.step is not None else 1
+    res = et.Shape()
+    for i in range(start, stop, step):
+        res.push_back(self[i])
+    return res
+
+def set_subshape(self: et.Shape, idx, value):
+    self.is_index_good(idx)
+    idx = idx if type(idx) is not int else range(idx, idx+1, 1)
+
+    rng = range(
+            idx.start if idx.start is not None else 0,
+            idx.stop if idx.stop is not None else self.size(),
+            idx.step if idx.step is not None else 1) # incase idx is slice
+    values = (value,) if is_iteratable(value) is False else value
+
+    if len(rng) != len(values):
+        raise ValueError('Cannot assign {} values into {} variables'.format(len(values), len(rng)))
+
+    for i, j in enumerate(rng):
+        self.data()[j] = values[i]
+
+et.Shape.__getitem__ = get_subshape
+et.Shape.__setitem__ = set_subshape
 
 # Override the __setitem__ and __getitem__ function of et.Tensor
 # To allow Python style subscription
@@ -107,30 +174,3 @@ et.Tensor.__bool__ = tensor_trueness
 
 # Implement out __len__ to match numpy's behaivour
 et.Tensor.__len__ = lambda self: self.shape()[0] if self.has_value else 0
-
-# Override et.Shape's __getitem__ and __setitem__
-def get_subshape(self: et.Shape, idx):
-    if type(idx) is int:
-        if idx >= self.size() or idx < -int(self.size()):
-            raise IndexError("index {} it our of range".format(idx))
-        if idx < 0:
-            return self.data()[len(self) + idx]
-        else:
-            return self.data()[idx]
-    elif idx.stop > self.size() or idx.stop < -int(self.size()):
-        raise IndexError("Stop index {} is out of range".format(idx.stop))
-    elif idx.start > self.size() or idx.start < -int(self.size()):
-        raise IndexError("Start index {} is out of range".format(idx.stop))
-
-
-    # Unfortunatelly iterators doesn't work :(
-    start = idx.start if idx.start is not None else 0
-    stop = idx.stop if idx.stop is not None else self.size()
-    step = idx.step if idx.step is not None else 1
-    res = et.Shape()
-    for i in range(start, stop, step):
-        res.push_back(self[i])
-    return res
-
-# TODO: Override __setitem__
-et.Shape.__getitem__ = get_subshape
