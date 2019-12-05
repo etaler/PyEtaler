@@ -133,11 +133,10 @@ def get_tensor_view(self: et.Tensor, slices) -> et.Tensor:
         if type(r) is int:
             rgs[i] = et.Range(r)
         elif type(r) is range or type(r) is slice:
-            if r.step is not None and r.step != 1:
-                raise NotImplementedError("Etaler does not support non 1 steps")
             start = 0 if r.start is None else r.start
             stop = shape[i] if r.stop is None else r.stop
-            rgs[i] = et.Range(start, stop, start < 0, stop < 0)
+            step = 1 if r.step is None else r.step
+            rgs[i] = et.Range(start, stop, step)
             # No need to check to out-of-bounds access. The C++ side does that
         else:
             raise TypeError("indices must be a int, range or slice")
