@@ -184,7 +184,7 @@ try:
         return np.array(lst).reshape(tuple(self.shape()))
     et.Tensor.numpy = tensor_to_np
 
-    def tensor_tolist(self: et.Tensor) -> np.array:
+    def tensor_tolist(self: et.Tensor) -> list:
         return tensor_to_np(self).tolist()
     et.Tensor.tolist = tensor_tolist
 
