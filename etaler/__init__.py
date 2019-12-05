@@ -174,7 +174,7 @@ et.Tensor.__bool__ = tensor_trueness
 # Implement our __len__ to match numpy's behaivour
 et.Tensor.__len__ = lambda self: self.shape()[0] if self.has_value else 0
 
-# interpo with numpy conversion
+# interop with numpy conversion
 try:
     import numpy as np
     def tensor_to_np(self: et.Tensor) -> np.array:
