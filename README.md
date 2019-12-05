@@ -5,8 +5,6 @@ This is the offical Python binding for Etaler. PyEtaler generates Python binging
 
 **Note:** As of now, installing cppyy (thus PyEtaler) will cause [ROOT](https://root.cern.ch) to fail to load due to dependency clash.
 
-## Building from source
-
 ## Installation
 
 **Note:** You must have Etaler and cppyy installed globally before building the binding.
@@ -82,7 +80,7 @@ becomes
 
 ```Python
 t = et.ones([4,4])
-q = t[4, 4]
+q = t[2, 2]
 ```
 
 ### Hacking PyEtaler
