@@ -49,6 +49,42 @@ After installation, you can use Etaler from python. The API is exactly like it i
 { 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0}
 ```
 
+## Caveats
+
+PyEtaler tries it's best to make the Python API similar to the C++ API (so ou can use the C++ documents as the Python document). There are some caveats. A few changes are made in an effort to make the Python API Pythonic. The changes are:
+
+#### Tensor.toHost and Tensor.item are not templates
+
+Since Python is a dynamically typed language. There's really no point have functions maintaining a template. Your code in C++
+
+```C++
+auto t = et::ones({4,4});
+auto vec = t.toHost<int>()
+```
+
+becomes
+
+```Python
+t = et.ones([4,4])
+vec = t.toHost()
+```
+
+#### No more brace arround tensor indices
+
+It is quite annoning having to have extra braces when indexing. So we removed them in Python!
+
+```C++
+auto t = et::ones({4,4});
+auto q = t[{2, 2}];
+```
+
+becomes
+
+```Python
+t = et.ones([4,4])
+q = t[4, 4]
+```
+
 ### Hacking PyEtaler
 
 In case that you need to use C++ STL - maybe because the wrapper is doing something stupid. You can access the STL using `etaler.std`.
