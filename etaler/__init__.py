@@ -189,6 +189,29 @@ try:
     et.Tensor.tolist = tensor_tolist
 
     # TODO: add function to create et.Tensor from numpy
+    def nptype_to_ettype(dtype):
+        if dtype == np.int32:
+            return et.DType.Int32
+        elif dtype == np.float32 or dtype == np.float:
+            return et.DType.Float
+        elif dtype == np.half: # np.float16 is np.half -> True
+            return et.DType.Half
+        elif dtype == np.bool:
+            return et.DType.Bool        
+        raise ValueError("numpy type {} cannot be mapped into a Etaler type".format(dtype))
+    def tensor_from_numpy(array):
+        # Try to convert to numpy array if the param is not one
+        if type(array) is not np.ndarray:
+            return tensor_from_numpy(np.array(array))
+        et_dtype = nptype_to_ettype(array.dtype)
+        cpp_type = type_from_dtype(et_dtype)
+        vec = std.vector[cpp_type](array.size)
+        for i, v in enumerate(np.nditer(array)):
+            vec[i] = cpp_type(v)
+        return et.Tensor(et.Shape(array.shape), vec.data())
+    et.Tensor.from_numpy = staticmethod(tensor_from_numpy)
+
+
 except ImportError:
     pass
 
