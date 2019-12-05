@@ -190,7 +190,7 @@ try:
 
     # TODO: add function to create et.Tensor from numpy
     def nptype_to_ettype(dtype):
-        if dtype == np.int32:
+        if dtype == np.int32 or dtype == np.int: #int is 64 bit, but anyway...
             return et.DType.Int32
         elif dtype == np.float32 or dtype == np.float:
             return et.DType.Float
@@ -206,6 +206,7 @@ try:
         et_dtype = nptype_to_ettype(array.dtype)
         cpp_type = type_from_dtype(et_dtype)
         vec = std.vector[cpp_type](array.size)
+        #TODO: We need a faster way to fill the vector
         for i, v in enumerate(np.nditer(array)):
             vec[i] = cpp_type(v)
         return et.Tensor(et.Shape(array.shape), vec.data())
