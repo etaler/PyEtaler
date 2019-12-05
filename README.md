@@ -12,7 +12,7 @@ This is the offical Python binding for Etaler. PyEtaler generates Python binging
 **Note:** You must have Etaler and cppyy installed globally before building the binding.
 **Note:** Since the binding is generated to load the actual Etaler installation. You'll need to re-compile the binding everytime Etaler is updated.
 
-If you are building from source (building via directlt interacting with the generator).
+If you are building from source (building via directly interacting with the generator).
 
 ```shell
 pip install cppyy # must installed globally
