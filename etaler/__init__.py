@@ -188,7 +188,6 @@ try:
         return tensor_to_np(self).tolist()
     et.Tensor.tolist = tensor_tolist
 
-    # TODO: add function to create et.Tensor from numpy
     def nptype_to_ettype(dtype):
         if dtype == np.int32 or dtype == np.int: #int is 64 bit, but anyway...
             return et.DType.Int32
