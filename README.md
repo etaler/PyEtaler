@@ -85,6 +85,27 @@ t = et.ones([4,4])
 q = t[4, 4]
 ```
 
+#### Logical operators doesn't work
+
+Due to how Python works. It is impossible to provide the logical operators in the wrapper.
+
+```C++
+auto r = t && q;
+```
+
+Should have become:
+
+```Python
+r = t and q
+```
+
+But instead of mapping `operator &&`. Python will try casting `et.Tensor` into a `bool` then performing the and operation.
+So instead of using `and`. Please use the `logical_and` function.
+
+```Python
+r = et.logical_and(t, q)
+```
+
 ### Hacking PyEtaler
 
 In case that you need to use C++ STL - maybe because the wrapper is doing something stupid. You can access the STL using `etaler.std`.
