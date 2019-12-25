@@ -65,7 +65,9 @@ et.Shape.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
 et.Tensor.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
 et.half.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
 
-# Override the default C++ initalizer for et.Shape for pythonic code
+# Override the default C++ ones/zeros for better pythonic function
+# TODO: A better approach is to overrite et.Shape.__init__ to
+# make it initalize pythonically
 cpp_ones = et.ones
 cpp_zeros = et.zeros
 cpp_constant = et.constant
