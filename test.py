@@ -32,7 +32,20 @@ class TestTensor(unittest.TestCase):
         self.assertEqual(t[0::2].shape(), et.Shape([2, 2]))
         self.assertEqual(t[0, 0].item(), 1)
         self.assertEqual(len(t.toHost()), 6)
-        
+
+    def test_assignment(self):
+        a = et.ones((4, 4))
+        b = et.zeros((4,))
+        a[0] = b
+        self.assertEqual(a.sum().item(), 12)
+        self.assertEqual(a[:, 0].realize().sum().item(), 3)
+
+
+
+class TestKeywordArguments(unittest.TestCase):
+    def test_keyword_arg(self):
+        sp = et.SpatialPooler(input_shape=(2048,), output_shape=(1024,))
+        self.assertEqual(sp.connections().shape()[0], 1024)
 
 if __name__ == '__main__':
     unittest.main()
