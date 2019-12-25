@@ -65,6 +65,23 @@ et.Shape.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
 et.Tensor.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
 et.half.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
 
+# Override the default C++ initalizer for et.Shape for pythonic code
+cpp_ones = et.ones
+cpp_zeros = et.zeros
+cpp_constant = et.constant
+
+def pythonic_shape_func(shape, func):
+    shape_t = type(shape)
+    if shape_t is tuple or shape_t is list:
+        return func(shape)
+    elif shape_t is int or shape_t is np.int or shape_t is np.int32:
+        return pythonic_shape_func((shape, ), func)
+    else:
+        raise TypeError("Cannot run shape function with type {}".format(shape_t))
+et.ones = lambda shape: pythonic_shape_func(shape, cpp_ones)
+et.zeros = lambda shape: pythonic_shape_func(shape, cpp_zeros)
+et.constant = lambda shape, val: pythonic_shape_func(shape, lambda s: cpp_constant(s. val))
+
 def is_index_good(self, idx):
     if type(idx) is int:
         if in_bound(idx, self.size()) is False:
