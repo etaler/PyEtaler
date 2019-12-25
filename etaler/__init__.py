@@ -72,7 +72,7 @@ cpp_ones = et.ones
 cpp_zeros = et.zeros
 cpp_constant = et.constant
 
-def pythonic_shape_func(shape, func):
+def pythonic_shape_func(shape, func) -> et.Tensor:
     shape_t = type(shape)
     if shape_t is tuple or shape_t is list:
         return func(shape)
