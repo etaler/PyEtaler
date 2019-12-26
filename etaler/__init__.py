@@ -96,6 +96,10 @@ def is_index_good(self, idx):
         raise IndexError("Cannot have step size of 0")
 et.Shape.is_index_good = is_index_good
 
+def shape_to_list(self: et.Shape):
+    return [int(d) for d in self]
+et.Shape.to_list = shape_to_list
+
 # Override et.Shape's __getitem__ and __setitem__
 def get_subshape(self: et.Shape, idx):
     self.is_index_good(idx)
