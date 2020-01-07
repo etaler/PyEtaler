@@ -150,11 +150,11 @@ def get_tensor_view(self: et.Tensor, slices) -> et.Tensor:
     else:
         tup = slices
 
-    rgs = et.svector[et.Range](len(tup))
+    rgs = et.IndexList(len(tup))
     shape = self.shape()
     for i, r in enumerate(tup):
         if type(r) is int:
-            rgs[i] = et.Range(r)
+            rgs[i] = r
         elif type(r) is range or type(r) is slice:
             start = 0 if r.start is None else r.start
             stop = shape[i] if r.stop is None else r.stop
