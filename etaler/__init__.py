@@ -156,9 +156,9 @@ def get_tensor_view(self: et.Tensor, slices) -> et.Tensor:
         if type(r) is int:
             rgs[i] = r
         elif type(r) is range or type(r) is slice:
-            start = 0 if r.start is None else r.start
-            stop = shape[i] if r.stop is None else r.stop
-            step = 1 if r.step is None else r.step
+            start = std.nullopt if r.start is None else r.start
+            stop = std.nullopt if r.stop is None else r.stop
+            step = std.nullopt if r.step is None else r.step
             rgs[i] = et.Range(start, stop, step)
             # No need to check to out-of-bounds access. The C++ side does that
         else:
