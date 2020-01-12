@@ -187,7 +187,7 @@ def tensor_trueness(self: et.Tensor) -> bool:
     if self.size() == 0:
         raise ValueError("The true-ness of a empty tensor is not defined.")
     elif self.size() > 1:
-        raise  ValueError("The true-ness of a non-scalar is ambiguous.")
+        raise  ValueError("The true-ness of a non-scalar is ambiguous. Please use any() or all()")
     if self.has_value() is False:
         return False
     return self.item() != 0 if self.dtype() == et.DType.Half else bool(self.item()) 
