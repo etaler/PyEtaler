@@ -56,6 +56,10 @@ class TestTensor(unittest.TestCase):
         self.assertEqual(a.sum().item(), 12)
         self.assertEqual(a[:, 0].realize().sum().item(), 3)
 
+    def test_reshape(self):
+        a = et.ones((4, 4))
+        a = a.reshape((16, ))
+        self.assertEqual(a.shape(), et.Shape([16, ]))
 
 
 class TestKeywordArguments(unittest.TestCase):
