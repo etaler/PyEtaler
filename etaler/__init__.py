@@ -179,6 +179,9 @@ et.Tensor.item = get_tensor_item
 # TODO: Should the function return a list/np.array instead of a std.vector?
 cpp_tensor_to_host = et.Tensor.toHost
 def tensor_to_host(self: et.Tensor):
+    uint8_t = cppyy.gbl.uint8_t
+    if self.dtype() == et.DType.Bool:
+        return cpp_tensor_to_host[uint8_t](self)
     return cpp_tensor_to_host[et.dtypeToType(self.dtype())](self)
 et.Tensor.toHost = tensor_to_host
 

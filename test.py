@@ -61,6 +61,10 @@ class TestTensor(unittest.TestCase):
         a = a.reshape((16, ))
         self.assertEqual(a.shape(), et.Shape([16, ]))
 
+    def test_tohost(self):
+        a = et.ones((3, 3))
+        v = a.toHost()
+        self.assertEqual(v.size(), a.size())
 
 class TestKeywordArguments(unittest.TestCase):
     def test_keyword_arg(self):
