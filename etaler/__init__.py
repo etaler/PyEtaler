@@ -72,16 +72,16 @@ cpp_ones = et.ones
 cpp_zeros = et.zeros
 cpp_constant = et.constant
 
-def pythonic_shape_func(shape, func) -> et.Tensor:
+def pythonic_shape_func(shape, func, dtype=None) -> et.Tensor:
     shape_t = type(shape)
     if shape_t is tuple or shape_t is list:
-        return func(shape)
+        return func(shape, dtype)
     elif shape_t is int or shape_t is np.int or shape_t is np.int32:
         return pythonic_shape_func((shape, ), func)
     else:
         raise TypeError("Cannot run shape function with type {}".format(shape_t))
-et.ones = lambda shape: pythonic_shape_func(shape, cpp_ones)
-et.zeros = lambda shape: pythonic_shape_func(shape, cpp_zeros)
+et.ones = lambda shape, dtype=None: pythonic_shape_func(shape, cpp_ones, dtype)
+et.zeros = lambda shape, dtype=None: pythonic_shape_func(shape, cpp_zeros, dtype)
 et.constant = lambda shape, val: pythonic_shape_func(shape, lambda s: cpp_constant(s. val))
 
 def is_index_good(self, idx):
