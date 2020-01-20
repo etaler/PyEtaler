@@ -65,6 +65,25 @@ et.Shape.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
 et.Tensor.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
 et.half.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
 
+# Override the default C++ ones/zeros for better pythonic function
+# TODO: A better approach is to overrite et.Shape.__init__ to
+# make it initalize pythonically
+cpp_ones = et.ones
+cpp_zeros = et.zeros
+cpp_constant = et.constant
+
+def pythonic_shape_func(shape, func, dtype=None) -> et.Tensor:
+    shape_t = type(shape)
+    if shape_t is tuple or shape_t is list:
+        return func(shape, dtype)
+    elif shape_t is int or shape_t is np.int or shape_t is np.int32:
+        return pythonic_shape_func((shape, ), func)
+    else:
+        raise TypeError("Cannot run shape function with type {}".format(shape_t))
+et.ones = lambda shape, dtype=None: pythonic_shape_func(shape, cpp_ones, dtype)
+et.zeros = lambda shape, dtype=None: pythonic_shape_func(shape, cpp_zeros, dtype)
+et.constant = lambda shape, val: pythonic_shape_func(shape, lambda s: cpp_constant(s. val))
+
 def is_index_good(self, idx):
     if type(idx) is int:
         if in_bound(idx, self.size()) is False:
@@ -76,6 +95,10 @@ def is_index_good(self, idx):
     elif idx.step == 0:
         raise IndexError("Cannot have step size of 0")
 et.Shape.is_index_good = is_index_good
+
+def shape_to_list(self: et.Shape):
+    return [int(d) for d in self]
+et.Shape.to_list = shape_to_list
 
 # Override et.Shape's __getitem__ and __setitem__
 def get_subshape(self: et.Shape, idx):
@@ -127,15 +150,15 @@ def get_tensor_view(self: et.Tensor, slices) -> et.Tensor:
     else:
         tup = slices
 
-    rgs = et.svector[et.Range](len(tup))
+    rgs = et.IndexList(len(tup))
     shape = self.shape()
     for i, r in enumerate(tup):
         if type(r) is int:
-            rgs[i] = et.Range(r)
+            rgs[i] = r
         elif type(r) is range or type(r) is slice:
-            start = 0 if r.start is None else r.start
-            stop = shape[i] if r.stop is None else r.stop
-            step = 1 if r.step is None else r.step
+            start = std.nullopt if r.start is None else r.start
+            stop = std.nullopt if r.stop is None else r.stop
+            step = std.nullopt if r.step is None else r.step
             rgs[i] = et.Range(start, stop, step)
             # No need to check to out-of-bounds access. The C++ side does that
         else:
@@ -156,6 +179,9 @@ et.Tensor.item = get_tensor_item
 # TODO: Should the function return a list/np.array instead of a std.vector?
 cpp_tensor_to_host = et.Tensor.toHost
 def tensor_to_host(self: et.Tensor):
+    uint8_t = cppyy.gbl.uint8_t
+    if self.dtype() == et.DType.Bool:
+        return cpp_tensor_to_host[uint8_t](self)
     return cpp_tensor_to_host[et.dtypeToType(self.dtype())](self)
 et.Tensor.toHost = tensor_to_host
 
@@ -164,7 +190,7 @@ def tensor_trueness(self: et.Tensor) -> bool:
     if self.size() == 0:
         raise ValueError("The true-ness of a empty tensor is not defined.")
     elif self.size() > 1:
-        raise  ValueError("The true-ness of a non-scalar is ambiguous.")
+        raise  ValueError("The true-ness of a non-scalar is ambiguous. Please use any() or all()")
     if self.has_value() is False:
         return False
     return self.item() != 0 if self.dtype() == et.DType.Half else bool(self.item()) 
@@ -188,7 +214,6 @@ try:
         return tensor_to_np(self).tolist()
     et.Tensor.tolist = tensor_tolist
 
-    # TODO: add function to create et.Tensor from numpy
     def nptype_to_ettype(dtype):
         if dtype == np.int32 or dtype == np.int: #int is 64 bit, but anyway...
             return et.DType.Int32
