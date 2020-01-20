@@ -25,7 +25,7 @@ class build_binding(build):
 setup(
   name = 'pyetaler',
   packages = ['etaler'],
-  version = '0.0.3',
+  version = '0.0.4',
   license='bsd-3-clause',
   description = 'A high performance implementation of Numenta\'s HTM algorithms',
   long_description=long_description,
