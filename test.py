@@ -72,5 +72,19 @@ class TestKeywordArguments(unittest.TestCase):
         sp = et.SpatialPooler(input_shape=(2048,), output_shape=(1024,))
         self.assertEqual(sp.connections().shape()[0], 1024)
 
+class TestEncoder(unittest.TestCase):
+    def test_gc1d(self):
+        try:
+            sdr = et.encoder.gridCell1d(42)
+        except:
+            self.fail("Failed to encode 1D grid cell")
+    
+    def test_gc2d(self):
+        try:
+            sdr = et.encoder.gridCell2d((42, 0))
+        except:
+            self.fail("Failed to encode 2D grid cell")
+
+
 if __name__ == '__main__':
     unittest.main()

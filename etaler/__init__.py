@@ -60,6 +60,12 @@ def is_iteratable(obj):
     except TypeError:
         return False
 
+def to_cpp_array(x, cpp_type):
+    arr = std.array[cpp_type, len(x)]()
+    for i, v in enumerate(x):
+        arr[i] = v
+    return arr
+
 # Override the default __repr__ with Etaler's function
 et.Shape.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
 et.Tensor.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
@@ -201,6 +207,18 @@ et.Tensor.__bool__ = tensor_trueness
 
 # Implement our __len__ to match numpy's behaivour
 et.Tensor.__len__ = lambda self: self.shape()[0] if self.has_value else 0
+
+# Make 2D grid cell work properly
+cpp_grid_cell_2d = et.encoder.gridCell2d
+def py_grid_cell_2d(p, num_gcm=16, active_cells_per_gcm=1, gcm_axis_length=(4, 4)
+	, scale_range=(0.3, 1), seed=42, backend = et.defaultBackend()):
+    gcm_axis_length = to_cpp_array(gcm_axis_length, std.size_t)
+    scale_range = to_cpp_array(gcm_axis_length, float)
+    p = to_cpp_array(gcm_axis_length, float)
+
+    return cpp_grid_cell_2d(p, num_gcm, active_cells_per_gcm
+        , gcm_axis_length, scale_range, seed, backend)
+et.encoder.gridCell2d = py_grid_cell_2d
 
 # interop with numpy conversion
 try:
