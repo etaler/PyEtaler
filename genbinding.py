@@ -58,7 +58,8 @@ cmd = ' '.join(
     ['genreflex',                     # utility installed by pip when installing cppyy
      '--verbose',                     # Show information (somehow genreflex fail without this)
      '-s', 'selection.xml',           # selection file
-     '-o', '%s_rflx.cpp'%rfldct]+     # intermediate output file
+     '-o', '%s_rflx.cpp'%rfldct,      # intermediate output file
+     '-cxxflags', '-std=c++17']+      # C++17 
      etaler_headers)                  # headers themselves
 ret = os.system(cmd)
 if ret != 0:

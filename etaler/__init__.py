@@ -74,9 +74,11 @@ cpp_constant = et.constant
 
 def pythonic_shape_func(shape, func, dtype=None) -> et.Tensor:
     shape_t = type(shape)
-    if shape_t is tuple or shape_t is list:
+    if dtype is None:
+        dtype = et.DType.Int32
+    if shape_t in (tuple, list, et.Shape):
         return func(shape, dtype)
-    elif shape_t is int or shape_t is np.int or shape_t is np.int32:
+    elif shape_t in (int, np.int, np.int32):
         return pythonic_shape_func((shape, ), func)
     else:
         raise TypeError("Cannot run shape function with type {}".format(shape_t))
