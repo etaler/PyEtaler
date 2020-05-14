@@ -17,6 +17,8 @@ class TestShape(unittest.TestCase):
         s = et.Shape((1, 2, 3, 4, 5))
         self.assertEqual(s[3], 4)
         self.assertEqual(s[:2], et.Shape([1, 2]))
+        self.assertIn(3, s)
+        self.assertNotIn(9000, s)
 
         s[:2] = [7, 7]
         self.assertEqual(s, et.Shape([7, 7, 3, 4, 5]))
@@ -148,6 +150,58 @@ class TestSP(unittest.TestCase):
         diff = abs(density - 0.15)
         if(diff > 0.05):
             self.fail("Spatial Pooler does not respect density settings. Expecting 0.15, get {}".format(density))
+
+
+class TestStateDict(unittest.TestCase):
+    def test_works_in_py(self):
+        s = et.StateDict()
+        self.assertEqual(s.empty(), True)
+        s['asd'] = 123
+        s['qwe'] = 456
+        self.assertEqual(s.size(), 2)
+        self.assertEqual(len(s), 2)
+        
+        # Check searching still works (using C++ iterators)
+        self.assertEqual(s.find('zxc'), s.end())
+        self.assertNotEqual(s.find('asd'), s.end())
+
+        # Check the python stuff also works
+        self.assertIn('asd', s)
+        self.assertNotIn('zxc', s)
+        for k, _ in s: # for loop in Python should work like it is in C++17 i.e. `for(auto [k, v] : s)`
+            self.assertIn(k, ['asd', 'qwe'])
+
+    def test_converting_from_py_dict(self):
+        d = {'asd':123, 'qwe':456}
+        try:
+            s = et.StateDict(d)
+        except:
+            self.fail("Converting from python dict to et.StateDict failed")
+
+        self.assertEqual(s.size(), 2)
+        self.assertNotEqual(s.find('asd'), s.end())
+        self.assertEqual(s.find('zxc'), s.end())
+
+    # NOTE: This is a particular behaivoir of C++ map/unordered_map.
+    def test_cpp_querk(self):
+        s = et.StateDict()
+        self.assertEqual(s.size(), 0)
+        try:
+            _ = s['asd']
+        except:
+            self.fail("The C++ behaivor of creating entery when reading a non-existance one disappeared")
+
+        self.assertEqual(s.size(), 1)
+    
+    def test_failed_lookup(self):
+        try:
+            s = et.StateDict()
+            s.at('zxc')
+        except:
+            pass
+        else:
+            self.fail("Should have thrown a C++ exception upon bad at() call")
+
 
 
 if __name__ == '__main__':
