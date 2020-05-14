@@ -121,6 +121,7 @@ def get_subshape(self: et.Shape, idx):
         raise TypeError("Cannot index with type {}".format(type(idx)))
    
     # Unfortunatelly iterators doesn't work like in C++ :(
+    # We can't do `it += 3` in Python
     start = idx.start if idx.start is not None else 0
     stop = idx.stop if idx.stop is not None else self.size()
     step = idx.step if idx.step is not None else 1
@@ -204,7 +205,13 @@ def tensor_trueness(self: et.Tensor) -> bool:
 et.Tensor.__bool__ = tensor_trueness
 
 # Implement our __len__ to match numpy's behaivour
-et.Tensor.__len__ = lambda self: self.shape()[0] if self.has_value else 0
+et.Tensor.__len__ = lambda self: self.shape()[0] if self.has_value() else 0
+
+# Handle stringify of tensors and shapes
+# HACK: I dunno why cppyy can't use et::to_string(const et::Tensor&).
+et.Tensor.__str__ = lambda self: cppyy.gbl.cling.printValue(self)
+
+et.Shape.__str__ = lambda self: et.to_string(self)
 
 # Make 2D grid cell work properly
 cpp_grid_cell_2d = et.encoder.gridCell2d
@@ -240,7 +247,7 @@ try:
         elif dtype == np.half: # np.float16 is np.half -> True
             return et.DType.Half
         elif dtype == np.bool:
-            return et.DType.Bool        
+            return et.DType.Bool 
         raise ValueError("numpy type {} cannot be mapped into a Etaler type".format(dtype))
     def tensor_from_numpy(array):
         # Try to convert to numpy array if the param is not one
