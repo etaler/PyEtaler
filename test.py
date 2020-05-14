@@ -66,6 +66,9 @@ class TestTensor(unittest.TestCase):
         v = a.toHost()
         self.assertEqual(v.size(), a.size())
 
+    def test_sanity(self):
+        self.assertEqual(et.zeros((5, 3), et.DType.Bool).numpy().sum(), 0)
+
 class TestKeywordArguments(unittest.TestCase):
     def test_keyword_arg(self):
         # NOTE: Make sure to pass a tuple/list instead of a integer.
@@ -75,16 +78,31 @@ class TestKeywordArguments(unittest.TestCase):
 class TestEncoder(unittest.TestCase):
     def test_gc1d(self):
         try:
-            sdr = et.encoder.gridCell1d(42)
+            et.encoder.gridCell1d(42)
         except:
             self.fail("Failed to encode 1D grid cell")
     
     def test_gc2d(self):
         try:
-            sdr = et.encoder.gridCell2d((42, 0))
+            et.encoder.gridCell2d((42, 0))
         except:
             self.fail("Failed to encode 2D grid cell")
+
+class TestSP(unittest.TestCase):
+    def test_sp(self):
+        sp = et.SpatialPooler((64, ), (64, ))
+        sp.setGlobalDensity(0.5)
+        self.assertEqual(sp.globalDensity(), 0.5)
+    
+    def test_sp_density(self):
+        sp = et.SpatialPooler((256, ), (256, ))
+        sp.setGlobalDensity(0.15)
+        density = sp.compute(et.encoder.gridCell1d(1)).sum().item()/256
+        diff = abs(density - 0.15)
+        if(diff > 0.05):
+            self.fail("Spatial Pooler does not respect density settings")
 
 
 if __name__ == '__main__':
     unittest.main()
+
