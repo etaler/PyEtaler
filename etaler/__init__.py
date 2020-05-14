@@ -55,7 +55,7 @@ def in_bound(idx: int, size: int):
 
 def is_iteratable(obj):
     try:
-        it = iter(obj)
+        iter(obj)
         return True
     except TypeError:
         return False
@@ -109,7 +109,7 @@ def shape_to_list(self: et.Shape):
 et.Shape.to_list = shape_to_list
 
 # Override et.Shape's __getitem__ and __setitem__
-def get_subshape(self: et.Shape, idx):
+def get_subshape(self: et.Shape, idx) -> et.Shape:
     self.is_index_good(idx)
 
     if type(idx) is int:
@@ -154,13 +154,12 @@ et.Shape.__setitem__ = set_subshape
 def get_tensor_view(self: et.Tensor, slices) -> et.Tensor:
 
     tup = None
-    if type(slices) is int or type(slices) is range or type(slices) is slice:
+    if type(slices) in (int, range, slice):
         tup = (slices,)
     else:
         tup = slices
 
     rgs = et.IndexList(len(tup))
-    shape = self.shape()
     for i, r in enumerate(tup):
         if type(r) is int:
             rgs[i] = r
@@ -216,7 +215,7 @@ et.Shape.__str__ = lambda self: et.to_string(self)
 # Make 2D grid cell work properly
 cpp_grid_cell_2d = et.encoder.gridCell2d
 def py_grid_cell_2d(p, num_gcm=16, active_cells_per_gcm=1, gcm_axis_length=(4, 4)
-	, scale_range=(0.3, 1), seed=42, backend = et.defaultBackend()):
+	, scale_range=(0.3, 1), seed=42, backend = et.defaultBackend()) -> et.Tensor:
     gcm_axis_length = to_cpp_array(gcm_axis_length, std.size_t)
     scale_range = to_cpp_array(gcm_axis_length, float)
     p = to_cpp_array(gcm_axis_length, float)
@@ -249,7 +248,8 @@ try:
         elif dtype == np.bool:
             return et.DType.Bool 
         raise ValueError("numpy type {} cannot be mapped into a Etaler type".format(dtype))
-    def tensor_from_numpy(array):
+
+    def tensor_from_numpy(array) -> et.Tensor:
         # Try to convert to numpy array if the param is not one
         if type(array) is not np.ndarray:
             return tensor_from_numpy(np.array(array))
