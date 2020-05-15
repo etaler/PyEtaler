@@ -212,6 +212,27 @@ et.Tensor.__str__ = lambda self: cppyy.gbl.cling.printValue(self)
 
 et.Shape.__str__ = lambda self: et.to_string(self)
 
+# Make et.load return a dict instead of StateDict (because StateDict is annoning in Python)
+cpp_load = et.load
+def state_dict_to_dict(state_dict: et.StateDict):
+    d = {}
+    aval_type = (et.Tensor, std.string, et.Shape, std.int32_t, float, bool, std.vector[et.Tensor], std.vector[std.int32_t], std.vector[float], std.vector[et.half])
+    aval_type_tbl = {cppyy.typeid(x).name():x for x in aval_type}
+    for k, v in state_dict:
+        value_type_info = v.type().name()
+        if value_type_info == cppyy.typeid(et.StateDict).name():
+            d[str(k)] = state_dict_to_dict(std.any_cast[et.StateDict](v))
+        elif value_type_info in aval_type_tbl:
+            d[str(k)] = std.any_cast[aval_type_tbl[value_type_info]](v)
+        else:
+            raise TypeError("Stored type not recognized by Etaler")
+    return d
+
+def py_load(path: str):
+    state = cpp_load(path)
+    return state_dict_to_dict(state)
+et.load = py_load
+
 # Make 2D grid cell work properly
 cpp_grid_cell_2d = et.encoder.gridCell2d
 def py_grid_cell_2d(p, num_gcm=16, active_cells_per_gcm=1, gcm_axis_length=(4, 4)
