@@ -152,7 +152,6 @@ et.Shape.__setitem__ = set_subshape
 # Override the __setitem__ and __getitem__ function of et.Tensor
 # To allow Python style subscription
 def get_tensor_view(self: et.Tensor, slices) -> et.Tensor:
-
     tup = None
     if type(slices) in (int, range, slice):
         tup = (slices,)
@@ -174,8 +173,13 @@ def get_tensor_view(self: et.Tensor, slices) -> et.Tensor:
 
     return self.view(rgs)
 
+def tensor_setitem(self: et.Tensor, slices, value):
+    rhs = self.__getitem__(slices)
+    lhs = et.brodcast_to(value, rhs.shape())
+    rhs.assign(et.ravel(lhs)) # FIXME: Shouldn't need ravel. This is slow and not needed in the C++ side
+
 et.Tensor.__getitem__ = get_tensor_view
-et.Tensor.__setitem__ = lambda self, slices, value: self.__getitem__(slices).assign(value)
+et.Tensor.__setitem__ = tensor_setitem
 
 # Override the default C++ item<T>() with a Python one
 cpp_get_tensor_item = et.Tensor.item

@@ -57,6 +57,20 @@ class TestTensor(unittest.TestCase):
             self.fail("et.Tensor.item() should fail when tensor is not a scalar")
         except:
             pass
+    
+    def test_scalar_assignment(self):
+        t = et.ones((2, 2))
+        try:
+            t[:2, :2] = 1
+        except et.EtError:
+            self.fail("Scalar assignment failed")
+
+    def test_tensor_assignment(self):
+        t = et.ones((2, 2))
+        try:
+            t[:2, :2] = et.zeros((1, 1))
+        except et.EtError:
+            self.fail("Tensor assignment failed")
 
     def test_numpy(self):
         t = et.ones((4, 4))
