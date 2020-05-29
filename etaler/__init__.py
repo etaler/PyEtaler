@@ -249,6 +249,9 @@ def py_grid_cell_2d(p, num_gcm=16, active_cells_per_gcm=1, gcm_axis_length=(4, 4
         , gcm_axis_length, scale_range, seed, backend)
 et.encoder.gridCell2d = py_grid_cell_2d
 
+# Print backend on REPL
+et.Backend.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
+
 # interop with numpy conversion
 try:
     import numpy as np
