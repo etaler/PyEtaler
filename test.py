@@ -162,14 +162,6 @@ class TestSP(unittest.TestCase):
         sp.setGlobalDensity(0.5)
         self.assertEqual(sp.globalDensity(), 0.5)
 
-    def test_sp_density(self):
-        sp = et.SpatialPooler((256, ), (256, ))
-        sp.setGlobalDensity(0.15)
-        density = sp.compute(et.encoder.gridCell1d(1)).sum().item()/256
-        diff = abs(density - 0.15)
-        if(diff > 0.05):
-            self.fail("Spatial Pooler does not respect density settings. Expecting 0.15, get {}".format(density))
-
 
 class TestStateDict(unittest.TestCase):
     def test_works_in_py(self):
