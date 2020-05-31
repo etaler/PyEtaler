@@ -119,7 +119,7 @@ def get_subshape(self: et.Shape, idx) -> et.Shape:
             return self.data()[idx]
     elif type(idx) is not slice and type(idx) is not range:
         raise TypeError("Cannot index with type {}".format(type(idx)))
-   
+
     # Unfortunatelly iterators doesn't work like in C++ :(
     # We can't do `it += 3` in Python
     start = idx.start if idx.start is not None else 0
@@ -189,7 +189,7 @@ et.Tensor.item = get_tensor_item
 
 # Override the default C++ toHost<T> with a Python one
 # TODO: Should the function return a list/np.array instead of a std.vector?
-# TODO: We use vector<bool> to handle boolean tensors. But vector<bool> in C++ is a compressed vector 
+# TODO: We use vector<bool> to handle boolean tensors. But vector<bool> in C++ is a compressed vector
 cpp_tensor_to_host = et.Tensor.toHost
 def tensor_to_host(self: et.Tensor):
     return cpp_tensor_to_host[et.dtypeToType(self.dtype())](self)
@@ -203,7 +203,7 @@ def tensor_trueness(self: et.Tensor) -> bool:
         raise  ValueError("The true-ness of a non-scalar is ambiguous. Please use any() or all()")
     if self.has_value() is False:
         return False
-    return self.item() != 0 if self.dtype() == et.DType.Half else bool(self.item()) 
+    return self.item() != 0 if self.dtype() == et.DType.Half else bool(self.item())
 
 et.Tensor.__bool__ = tensor_trueness
 
@@ -274,7 +274,7 @@ try:
         elif dtype == np.half: # np.float16 is np.half -> True
             return et.DType.Half
         elif dtype == np.bool:
-            return et.DType.Bool 
+            return et.DType.Bool
         raise ValueError("numpy type {} cannot be mapped into a Etaler type".format(dtype))
 
     def tensor_from_numpy(array) -> et.Tensor:
@@ -283,11 +283,16 @@ try:
             return tensor_from_numpy(np.array(array))
         et_dtype = nptype_to_ettype(array.dtype)
         cpp_type = type_from_dtype(et_dtype)
-        vec = std.vector[cpp_type](array.size)
-        #TODO: We need a faster way to fill the vector
-        for i, v in enumerate(np.nditer(array)):
-            vec[i] = cpp_type(v)
-        return et.Tensor(et.Shape(array.shape), vec.data())
+
+        # HACK: Workarrounc C++ std::vector<bool> specilization and cppyy uint8_t issue
+        if cpp_type is bool:
+            return tensor_from_numpy(array.astype(int)).cast(et.DType.Bool)
+        else:
+            vec = std.vector[cpp_type](array.size)
+            #TODO: We need a faster way to fill the vector
+            for i, v in enumerate(np.nditer(array)):
+                vec[i] = cpp_type(v)
+            return et.Tensor(et.Shape(array.shape), vec.data())
     et.Tensor.from_numpy = staticmethod(tensor_from_numpy)
 
 
