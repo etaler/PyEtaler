@@ -73,7 +73,8 @@ et.half.__repr__ = lambda self: cppyy.gbl.cling.printValue(self)
 
 # Override the default C++ ones/zeros for better pythonic function
 # TODO: A better approach is to overrite et.Shape.__init__ to
-# make it initalize pythonically
+# make it initalize pythonically. But it breaks initalization
+# from function parameters for some reason
 cpp_ones = et.ones
 cpp_zeros = et.zeros
 cpp_constant = et.constant
@@ -188,8 +189,8 @@ def get_tensor_item(self: et.Tensor):
 et.Tensor.item = get_tensor_item
 
 # Override the default C++ toHost<T> with a Python one
-# TODO: Should the function return a list/np.array instead of a std.vector?
-# TODO: We use vector<bool> to handle boolean tensors. But vector<bool> in C++ is a compressed vector
+# XXX: Should the function return a list/np.array instead of a std.vector?
+# NOTE: We use vector<bool> to handle boolean tensors. But vector<bool> in C++ is a compressed vector
 cpp_tensor_to_host = et.Tensor.toHost
 def tensor_to_host(self: et.Tensor):
     return cpp_tensor_to_host[et.dtypeToType(self.dtype())](self)
@@ -284,7 +285,8 @@ try:
         et_dtype = nptype_to_ettype(array.dtype)
         cpp_type = type_from_dtype(et_dtype)
 
-        # HACK: Workarrounc C++ std::vector<bool> specilization and cppyy uint8_t issue
+        # NOTE: C++ specialized std::vector<bool> and cppyy have weird behaivor for uint8_t.
+        # Work arround it
         if cpp_type is bool:
             return tensor_from_numpy(array.astype(int)).cast(et.DType.Bool)
         else:
@@ -292,6 +294,11 @@ try:
             #TODO: We need a faster way to fill the vector
             for i, v in enumerate(np.nditer(array)):
                 vec[i] = cpp_type(v)
+
+            # FIXME: We use a slower method for FP16 because cppyy can't do it the fast way
+            # for reasons
+            if cpp_type is et.half:
+                return et.Tensor(vec).reshape(et.Shape(array.shape))
             return et.Tensor(et.Shape(array.shape), vec.data())
     et.Tensor.from_numpy = staticmethod(tensor_from_numpy)
 

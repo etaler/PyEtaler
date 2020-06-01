@@ -45,7 +45,7 @@ class TestTensor(unittest.TestCase):
         self.assertEqual(t.shape(), et.Shape([3, 2]))
 
     def test_creatyion_type(self):
-        for create_type in (int, float, bool):
+        for create_type in (int, float, bool, np.half):
             t = et.Tensor().from_numpy(np.zeros(2).astype(create_type))
             self.assertEqual(t.dtype(), et.typeToDType[create_type]())
 
