@@ -36,7 +36,7 @@ setup(
   keywords = ['HTM', 'Hierarchical Temporal Memory', 'Numenta', "AI", "SDR"
       "sparse distributed representation", "bioinspired"],
   install_requires=[
-          'cppyy>=1.6.0', # 1.6.0 and above supports throwing C++ exceptions in Python and keyword arguments
+          'cppyy>=1.7.1', # 1.7.1 and above supports throwing C++ exceptions in Python and keyword arguments
           'pathlib'
    ],
    extras_require = {
