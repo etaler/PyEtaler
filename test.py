@@ -44,6 +44,11 @@ class TestTensor(unittest.TestCase):
         t = et.Tensor.from_numpy(a)
         self.assertEqual(t.shape(), et.Shape([3, 2]))
 
+    def test_creatyion_type(self):
+        for create_type in (int, float, bool, np.half):
+            t = et.Tensor().from_numpy(np.zeros(2).astype(create_type))
+            self.assertEqual(t.dtype(), et.typeToDType[create_type]())
+
     def test_pythonic_ops(self):
         a = np.array([1, 2, 3, 4, 5, 6]).reshape(3, 2)
         t = et.Tensor.from_numpy(a)
@@ -57,7 +62,7 @@ class TestTensor(unittest.TestCase):
             self.fail("et.Tensor.item() should fail when tensor is not a scalar")
         except:
             pass
-    
+
     def test_scalar_assignment(self):
         t = et.ones((2, 2))
         try:
@@ -75,7 +80,7 @@ class TestTensor(unittest.TestCase):
     def test_numpy(self):
         t = et.ones((4, 4))
         a = t.numpy()
-        self.assertEqual(len(a.shape), 2) 
+        self.assertEqual(len(a.shape), 2)
 
     def test_assignment(self):
         a = et.ones((4, 4))
@@ -127,7 +132,7 @@ class TestEncoder(unittest.TestCase):
             et.encoder.gridCell1d(42)
         except:
             self.fail("Failed to encode 1D grid cell")
-    
+
     def test_gc2d(self):
         try:
             et.encoder.gridCell2d((42, 0))
@@ -156,14 +161,6 @@ class TestSP(unittest.TestCase):
         sp = et.SpatialPooler((64, ), (64, ))
         sp.setGlobalDensity(0.5)
         self.assertEqual(sp.globalDensity(), 0.5)
-    
-    def test_sp_density(self):
-        sp = et.SpatialPooler((256, ), (256, ))
-        sp.setGlobalDensity(0.15)
-        density = sp.compute(et.encoder.gridCell1d(1)).sum().item()/256
-        diff = abs(density - 0.15)
-        if(diff > 0.05):
-            self.fail("Spatial Pooler does not respect density settings. Expecting 0.15, get {}".format(density))
 
 
 class TestStateDict(unittest.TestCase):
@@ -174,7 +171,7 @@ class TestStateDict(unittest.TestCase):
         s['qwe'] = 456
         self.assertEqual(s.size(), 2)
         self.assertEqual(len(s), 2)
-        
+
         # Check searching still works (using C++ iterators)
         self.assertEqual(s.find('zxc'), s.end())
         self.assertNotEqual(s.find('asd'), s.end())
@@ -206,7 +203,7 @@ class TestStateDict(unittest.TestCase):
             self.fail("The C++ behaivor of creating entery when reading a non-existance one disappeared")
 
         self.assertEqual(s.size(), 1)
-    
+
     def test_failed_lookup(self):
         try:
             s = et.StateDict()
