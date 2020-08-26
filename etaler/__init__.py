@@ -302,8 +302,17 @@ try:
             return et.Tensor(et.Shape(array.shape), vec.data())
     et.Tensor.from_numpy = staticmethod(tensor_from_numpy)
 
-
 except ImportError:
     pass
+
+# Brainblocks interop
+def tensor_from_brainblocks() -> et.Tensor:
+    pass
+    bits = page.bits
+    vec = std.vector[bool](len(bits))
+    for i,v in enumerate(vec):
+        vec[i] = v
+    return et.Tensor(et.Shape([len(bits)]), vec.data())
+et.Tensor.from_brainblocks = staticmethod(tensor_from_brainblocks)
 
 
