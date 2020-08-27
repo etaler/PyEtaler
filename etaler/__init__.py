@@ -306,13 +306,19 @@ except ImportError:
     pass
 
 # Brainblocks interop
-def tensor_from_brainblocks() -> et.Tensor:
-    pass
-    bits = page.bits
+def tensor_from_brainblocks(block) -> et.Tensor:
+    bits = block.output.bits
     vec = std.vector[bool](len(bits))
     for i,v in enumerate(vec):
         vec[i] = v
     return et.Tensor(et.Shape([len(bits)]), vec.data())
 et.Tensor.from_brainblocks = staticmethod(tensor_from_brainblocks)
 
+def tensor_to_brainblocks(self):
+    import brainblocks
+    tensor = self.flatten()
+    block = brainblocks.blocks.BlankBlock(num_s=len(tensor))
+    block.output.bits = list(tensor.toHost())
+    return block
+et.Tensor.to_brainblocks = tensor_to_brainblocks
 
