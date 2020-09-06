@@ -82,6 +82,13 @@ class TestTensor(unittest.TestCase):
         a = t.numpy()
         self.assertEqual(len(a.shape), 2)
 
+    def test_contruct_numpy_array(self):
+        t = et.ones((4, 4))
+        a = np.array(t)
+        self.assertEqual(len(a.shape), 2)
+        self.assertEqual(a.shape[0], 4)
+        self.assertEqual(a.shape[1], 4)
+
     def test_assignment(self):
         a = et.ones((4, 4))
         b = et.zeros((4,))
@@ -119,6 +126,13 @@ class TestTensor(unittest.TestCase):
         b = a[:2, :2]
         b[:] -= 1
         self.assertEqual(a.sum().item(), 12)
+
+    def test_integer_division_type(self):
+        a = et.ones((1))
+        b = et.ones((1))
+
+        # Unlike Python, PyEtaler follows the C/C++ opetor type conversion
+        self.assertEqual((a/b).dtype(), et.DType.Int32)
 
 class TestKeywordArguments(unittest.TestCase):
     def test_keyword_arg(self):
