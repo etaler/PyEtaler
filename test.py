@@ -140,6 +140,11 @@ class TestKeywordArguments(unittest.TestCase):
         sp = et.SpatialPooler(input_shape=(2048,), output_shape=(1024,))
         self.assertEqual(sp.connections().shape()[0], 1024)
 
+        sdr1 = et.encoder.gridCell1d(3.1415, seed=90, scale_range=(1, 5.0))
+        sdr2 = et.encoder.gridCell1d(3.1415, scale_range=(1, 5.0), seed=90)
+        self.assertEqual(sdr1.isSame(sdr2), True)
+
+
 class TestEncoder(unittest.TestCase):
     def test_gc1d(self):
         try:
