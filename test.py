@@ -82,6 +82,13 @@ class TestTensor(unittest.TestCase):
         a = t.numpy()
         self.assertEqual(len(a.shape), 2)
 
+    def test_contruct_numpy_array(self):
+        t = et.ones((4, 4))
+        a = np.array(t)
+        self.assertEqual(len(a.shape), 2)
+        self.assertEqual(a.shape[0], 4)
+        self.assertEqual(a.shape[1], 4)
+
     def test_assignment(self):
         a = et.ones((4, 4))
         b = et.zeros((4,))
@@ -120,11 +127,23 @@ class TestTensor(unittest.TestCase):
         b[:] -= 1
         self.assertEqual(a.sum().item(), 12)
 
+    def test_integer_division_type(self):
+        a = et.ones((1))
+        b = et.ones((1))
+
+        # Unlike Python, PyEtaler follows the C/C++ opetor type conversion
+        self.assertEqual((a/b).dtype(), et.DType.Int32)
+
 class TestKeywordArguments(unittest.TestCase):
     def test_keyword_arg(self):
         # NOTE: Make sure to pass a tuple/list instead of a integer.
         sp = et.SpatialPooler(input_shape=(2048,), output_shape=(1024,))
         self.assertEqual(sp.connections().shape()[0], 1024)
+
+        sdr1 = et.encoder.gridCell1d(3.1415, seed=90, scale_range=(1, 5.0))
+        sdr2 = et.encoder.gridCell1d(3.1415, scale_range=(1, 5.0), seed=90)
+        self.assertEqual(sdr1.isSame(sdr2), True)
+
 
 class TestEncoder(unittest.TestCase):
     def test_gc1d(self):
